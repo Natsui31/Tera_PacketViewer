@@ -50,10 +50,9 @@ namespace PacketViewer
 
         public void StartCapture(string deviceName, string ip)
         {
+            this.device = null;
             if (deviceName == "" || ip == "")
                 return;
-            if (this.IsRunning)
-                MessageBox.Show("You shouldn't start capture another time.");
         
             CaptureDeviceList deviceList = CaptureDeviceList.Instance;
             
