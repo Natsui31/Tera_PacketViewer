@@ -22,70 +22,72 @@ namespace PacketViewer
 
         protected MainWindow MainWindow;
 
-        public Capture(MainWindow mainWindow)
+        public bool IsRunning
         {
-            MainWindow = mainWindow;
+            get
+            {
+                if (device == null)
+                    return false;
+                return device.Started;
+            }
         }
 
+        public Capture(MainWindow mainWindow)
+        {
+            this.MainWindow = mainWindow;
+        }
 
-        public List<string> GetDevices()
+        public IEnumerable<string> GetDevices()
         {
             List<string> tmpList = new List<string>();
             CaptureDeviceList deviceList = CaptureDeviceList.Instance;
 
             foreach (ICaptureDevice device in deviceList)
             {
-                tmpList.Add(device.Description);
+                yield return device.Description;
             }
-
-            return tmpList ;
         }
 
         public void StartCapture(string deviceName, string ip)
         {
             if (deviceName == "" || ip == "")
-            {
                 return;
-            }
+            if (this.IsRunning)
+                MessageBox.Show("You shouldn't start capture another time.");
         
             CaptureDeviceList deviceList = CaptureDeviceList.Instance;
             
-
             foreach (var dev in deviceList)
             {
                 if (dev.Description == deviceName)
-                {
-                    device = dev;
-                }
+                    this.device = dev;
             }
 
-            if (device == null)
-            {
+            if (this.device == null)
                 MessageBox.Show("Device Fail");
-            }
    
             // Register our handler function to the
             // 'packet arrival' event
-            device.OnPacketArrival += new SharpPcap.PacketArrivalEventHandler(device_OnPacketArrival);
+            this.device.OnPacketArrival += new SharpPcap.PacketArrivalEventHandler(device_OnPacketArrival);
             
             // Open the device for capturing
             int readTimeoutMilliseconds = 1000;
-            device.Open(DeviceMode.Promiscuous, readTimeoutMilliseconds);
+            this.device.Open(DeviceMode.Promiscuous, readTimeoutMilliseconds);
 
             //Filter
             string filter = "host " + ip;
-            device.Filter = filter;
-            captureIp = ip;
+            this.device.Filter = filter;
+            this.captureIp = ip;
 
             // Start the capturing process
-            device.StartCapture();
+            this.device.StartCapture();
         }
 
         public void StopCapture()
         {
-            device.StopCapture();
-            device.Close();
-            captureIp = "";
+            this.device.StopCapture();
+            this.device.Close();
+            this.captureIp = "";
         }
 
         public void device_OnPacketArrival(object sender, CaptureEventArgs eCap)
@@ -94,7 +96,6 @@ namespace PacketViewer
             EthernetPacket ethernetPacket = new EthernetPacket(raw);
             IpPacket ipPacket = (IpPacket)ethernetPacket.PayloadPacket;
             TcpPacket tcp = (TcpPacket)ipPacket.PayloadPacket;
-           
 
             if (ipPacket != null && tcp != null)
             {
@@ -104,12 +105,11 @@ namespace PacketViewer
                 if (destIp == captureIp)
                 {
                     //Client -> Server
-                    MainWindow.pp.AppendClientData(tcp.PayloadData);
+                    this.MainWindow.pp.AppendClientData(tcp.PayloadData);
                     
                     // ReSharper disable CSharpWarnings::CS0642
-                    while (MainWindow.pp.ProcessClientData()) ;
+                    while (this.MainWindow.pp.ProcessClientData()) ;
                     // ReSharper restore CSharpWarnings::CS0642
-
                 }
                 else
                 {
@@ -119,16 +119,15 @@ namespace PacketViewer
                     {
                         //New Connection detected. 
                         //We should reset State and Security Info
-                        MainWindow.pp.Init();
-                        MainWindow.pp.State = 0;
-                        MainWindow.ClearPackets();
+                        this.MainWindow.pp.Init();
+                        this.MainWindow.pp.State = 0;
+                        this.MainWindow.ClearPackets();
                     }
 
-
                     //Sever -> Client
-                    MainWindow.pp.AppendServerData(tcp.PayloadData);
+                    this.MainWindow.pp.AppendServerData(tcp.PayloadData);
                     // ReSharper disable CSharpWarnings::CS0642
-                    while (MainWindow.pp.ProcessServerData()) ;
+                    while (this.MainWindow.pp.ProcessServerData()) ;
                     // ReSharper restore CSharpWarnings::CS0642
                 }
 

@@ -1,7 +1,7 @@
 ﻿<Window x:Class="PacketViewer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="PacketSniffer -- Base by Cerium Unity -- Edit by GoneUp" Height="648" Width="898">
+        Title="PacketSniffer -- Base by Cerium Unity -- Edit by GoneUp" Height="648" Width="898" Closing="Window_Closing">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="233*"/>
@@ -38,12 +38,12 @@
         <TextBox Name="OpCodeBox" Margin="10,64,34,0" Grid.Row="1" TextWrapping="Wrap" Text="Find OpCode" VerticalAlignment="Top" Height="22"/>
         <Button Content=">" Margin="0,64,0,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right" Width="29" Click="FindByOpCode" Height="22"/>
         <ComboBox x:Name="BoxNic" HorizontalAlignment="Left" Margin="5,24,0,0" VerticalAlignment="Top" Width="649" Grid.Column="1" SelectionChanged="BoxNic_SelectionChanged"/>
-        <ComboBox x:Name="BoxServers" HorizontalAlignment="Left" Margin="10,24,0,0" VerticalAlignment="Top" Width="182">
+        <ComboBox x:Name="BoxServers" HorizontalAlignment="Left" Margin="10,24,0,0" VerticalAlignment="Top" Width="182" SelectedIndex="2">
             <ComboBoxItem Content="79.110.94.217;EU Akasha"/>
             <ComboBoxItem Content="79.110.94.218;EU Arcadia"/>
-            <ComboBoxItem Content="79.110.94.214;EU Elinu"/>
+            <ComboBoxItem Content="79.110.94.214;EU Elinu" IsSelected="True"/>
             <ComboBoxItem Content="79.110.94.212;EU Fraya"/>
-            <ComboBoxItem Content="79.110.94.213;EU Hasmina" IsSelected="True"/>
+            <ComboBoxItem Content="79.110.94.213;EU Hasmina"/>
             <ComboBoxItem Content="79.110.94.215;EU Icaruna"/>
             <ComboBoxItem Content="79.110.94.219;EU Kaidun"/>
             <ComboBoxItem Content="79.110.94.211;EU Killian"/>

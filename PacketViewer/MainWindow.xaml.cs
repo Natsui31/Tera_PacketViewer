@@ -23,37 +23,38 @@ namespace PacketViewer
 {
     public partial class MainWindow
     {
+        public Capture cap;
+        public PacketProcessor pp;
+
         public MainWindow()
         {
             InitializeComponent();
             Packet.Init();
 
             foreach (var packetName in Packet.ClientPacketNames)
-                PacketNamesList.Items.Add(packetName.Value);
+                this.PacketNamesList.Items.Add(packetName.Value);
 
-            PacketNamesList.Items.Add(new Separator
+            this.PacketNamesList.Items.Add(new Separator
                                           {
                                               HorizontalAlignment = HorizontalAlignment.Stretch,
                                               IsEnabled = false
                                           });
 
             foreach (var packetName in Packet.ServerPacketNames)
-                PacketNamesList.Items.Add(packetName.Value);
+                this.PacketNamesList.Items.Add(packetName.Value);
 
-            PacketNamesList.SelectedIndex = 0;
+            this.PacketNamesList.SelectedIndex = 0;
 
 
-            pp = new PacketProcessor(this);
-            cap = new Capture(this);
+            this.pp = new PacketProcessor(this);
+            this.cap = new Capture(this);
 
-            var list = cap.GetDevices();
-
-            foreach (var nic in list)
+            foreach (var nic in cap.GetDevices())
             {
-                BoxNic.Items.Add(nic);
+                this.BoxNic.Items.Add(nic);
             }
-       
-            pp.Init();
+
+            this.pp.Init();
 
             // ReSharper disable ObjectCreationAsStatement
             new FindAllNpcs(this);
@@ -64,11 +65,6 @@ namespace PacketViewer
             // ReSharper restore ObjectCreationAsStatement
         }
 
-        public Capture cap;
-        public bool CaptureRunning = false;
-
-        public PacketProcessor pp;
-
         public void OpenFile(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog {Filter = "*.hex|*.hex"};
@@ -76,10 +72,10 @@ namespace PacketViewer
             if (openFileDialog.ShowDialog() == false)
                 return;
 
-            pp.Init();
-            pp.OpenFileMode = true;
+            this.pp.Init();
+            this.pp.OpenFileMode = true;
 
-            PacketsList.Items.Clear();
+            this.PacketsList.Items.Clear();
 
             using (FileStream fileStream = File.OpenRead(openFileDialog.FileName))
             {
@@ -92,9 +88,9 @@ namespace PacketViewer
                             break;
                         if (line.Length == 0)
                             continue;
-                        if (pp.State == -1)
+                        if (this.pp.State == -1)
                         {
-                            pp.State = 0;
+                            this.pp.State = 0;
                             continue;
                         }
 
@@ -105,30 +101,28 @@ namespace PacketViewer
 
                         if (isServer)
                         {
-                            pp.AppendServerData(data);
+                            this.pp.AppendServerData(data);
                             // ReSharper disable CSharpWarnings::CS0642
-                            while (pp.ProcessServerData()) ;
+                            while (this.pp.ProcessServerData()) ;
                             // ReSharper restore CSharpWarnings::CS0642
                         }
                         else
                         {
-                            pp.AppendClientData(data);
+                            this.pp.AppendClientData(data);
                             // ReSharper disable CSharpWarnings::CS0642
-                            while (pp.ProcessClientData()) ;
+                            while (this.pp.ProcessClientData()) ;
                             // ReSharper restore CSharpWarnings::CS0642
                         }
                     }
                 }
             }
 
-            SetText("Loaded " + pp.Packets.Count + " packets...");
+            SetText("Loaded " + this.pp.Packets.Count + " packets...");
         }
-        
-        
 
         private void Exit(object sender, RoutedEventArgs e)
         {
-            Close();
+            this.Close();
         }
 
         public void ClearPackets()
@@ -137,7 +131,7 @@ namespace PacketViewer
                 new Action(
                     delegate
                     {
-                       PacketsList.Items.Clear();
+                        this.PacketsList.Items.Clear();
                     }));
         }
 
@@ -153,9 +147,9 @@ namespace PacketViewer
                             Background = new SolidColorBrush(col)
                          };
 
-                        PacketsList.Items.Add(item);
+                        this.PacketsList.Items.Add(item);
 
-                        PacketsList.ScrollIntoView(item);
+                        this.PacketsList.ScrollIntoView(item);
                     }));
         }
 
@@ -165,8 +159,8 @@ namespace PacketViewer
                 new Action(
                     delegate
                     {
-                        HexTextBox.Document.Blocks.Clear();
-                        HexTextBox.Document.Blocks.Add(new Paragraph(new Run(text)));
+                        this.HexTextBox.Document.Blocks.Clear();
+                        this.HexTextBox.Document.Blocks.Add(new Paragraph(new Run(text)));
                     }));
         }
 
@@ -176,7 +170,7 @@ namespace PacketViewer
                 new Action(
                     delegate
                     {
-                       HexTextBox.Document.Blocks.Add(new Paragraph(new Run(text)));
+                        this.HexTextBox.Document.Blocks.Add(new Paragraph(new Run(text)));
                     }));
         }
 
@@ -186,8 +180,8 @@ namespace PacketViewer
                 new Action(
                     delegate
                         {
-                            TextBox.Document.Blocks.Clear();
-                            TextBox.Document.Blocks.Add(new Paragraph(new Run(text)));
+                            this.TextBox.Document.Blocks.Clear();
+                            this.TextBox.Document.Blocks.Add(new Paragraph(new Run(text)));
                         }));
         }
 
@@ -195,26 +189,26 @@ namespace PacketViewer
         {
             if (PacketsList.SelectedIndex == -1)
                 return;
-            
-            SetHex(pp.Packets[PacketsList.SelectedIndex].Hex);
-            SetText(pp.Packets[PacketsList.SelectedIndex].Text);
 
-            OpCodeBox.Text = pp.Packets[PacketsList.SelectedIndex].Hex.Substring(0, 4);
+            this.SetHex(pp.Packets[PacketsList.SelectedIndex].Hex);
+            this.SetText(pp.Packets[PacketsList.SelectedIndex].Text);
+
+            this.OpCodeBox.Text = this.pp.Packets[PacketsList.SelectedIndex].Hex.Substring(0, 4);
         }
 
         private void FindByName(object sender, RoutedEventArgs e)
         {
-            if (pp.Packets == null)
+            if (this.pp.Packets == null)
                 return;
 
-            string name = PacketNamesList.SelectedItem.ToString();
+            string name = this.PacketNamesList.SelectedItem.ToString();
 
-            for (int i = PacketsList.SelectedIndex + 1; i < pp.Packets.Count; i++)
+            for (int i = this.PacketsList.SelectedIndex + 1; i < this.pp.Packets.Count; i++)
             {
-                if (pp.Packets[i].Name == name)
+                if (this.pp.Packets[i].Name == name)
                 {
-                    PacketsList.SelectedIndex = i;
-                    PacketsList.ScrollIntoView(PacketsList.SelectedItem);
+                    this.PacketsList.SelectedIndex = i;
+                    this.PacketsList.ScrollIntoView(this.PacketsList.SelectedItem);
                     return;
                 }
             }
@@ -222,12 +216,12 @@ namespace PacketViewer
             if (MessageBox.Show("Find from start?", "Not found", MessageBoxButton.YesNo) == MessageBoxResult.No)
                 return;
 
-            for (int i = 0; i < PacketsList.SelectedIndex; i++)
+            for (int i = 0; i < this.PacketsList.SelectedIndex; i++)
             {
-                if (pp.Packets[i].Name == name)
+                if (this.pp.Packets[i].Name == name)
                 {
-                    PacketsList.SelectedIndex = i;
-                    PacketsList.ScrollIntoView(PacketsList.SelectedItem);
+                    this.PacketsList.SelectedIndex = i;
+                    this.PacketsList.ScrollIntoView(this.PacketsList.SelectedItem);
                     return;
                 }
             }
@@ -235,17 +229,17 @@ namespace PacketViewer
 
         private void FindByHex(object sender, RoutedEventArgs e)
         {
-            if (pp.Packets == null)
+            if (this.pp.Packets == null)
                 return;
 
-            string hex = HexBox.Text.Replace(" ", "");
+            string hex = this.HexBox.Text.Replace(" ", "");
 
-            for (int i = PacketsList.SelectedIndex + 1; i < pp.Packets.Count; i++)
+            for (int i = this.PacketsList.SelectedIndex + 1; i < this.pp.Packets.Count; i++)
             {
-                if (pp.Packets[i].Hex.IndexOf(hex, 4, StringComparison.OrdinalIgnoreCase) != -1)
+                if (this.pp.Packets[i].Hex.IndexOf(hex, 4, StringComparison.OrdinalIgnoreCase) != -1)
                 {
-                    PacketsList.SelectedIndex = i;
-                    PacketsList.ScrollIntoView(PacketsList.SelectedItem);
+                    this.PacketsList.SelectedIndex = i;
+                    this.PacketsList.ScrollIntoView(PacketsList.SelectedItem);
                     return;
                 }
             }
@@ -253,12 +247,12 @@ namespace PacketViewer
             if (MessageBox.Show("Find from start?", "Not found", MessageBoxButton.YesNo) == MessageBoxResult.No)
                 return;
 
-            for (int i = 0; i < PacketsList.SelectedIndex; i++)
+            for (int i = 0; i < this.PacketsList.SelectedIndex; i++)
             {
-                if (pp.Packets[i].Hex.IndexOf(hex, 4, StringComparison.OrdinalIgnoreCase) != -1)
+                if (this.pp.Packets[i].Hex.IndexOf(hex, 4, StringComparison.OrdinalIgnoreCase) != -1)
                 {
-                    PacketsList.SelectedIndex = i;
-                    PacketsList.ScrollIntoView(PacketsList.SelectedItem);
+                    this.PacketsList.SelectedIndex = i;
+                    this.PacketsList.ScrollIntoView(PacketsList.SelectedItem);
                     return;
                 }
             }
@@ -266,17 +260,17 @@ namespace PacketViewer
 
         private void FindByOpCode(object sender, RoutedEventArgs e)
         {
-            if (pp.Packets == null)
+            if (this.pp.Packets == null)
                 return;
 
             string hex = OpCodeBox.Text.Replace(" ", "");
 
-            for (int i = PacketsList.SelectedIndex + 1; i < pp.Packets.Count; i++)
+            for (int i = this.PacketsList.SelectedIndex + 1; i < this.pp.Packets.Count; i++)
             {
-                if (pp.Packets[i].Hex.IndexOf(hex, 0, StringComparison.OrdinalIgnoreCase) == 0)
+                if (this.pp.Packets[i].Hex.IndexOf(hex, 0, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    PacketsList.SelectedIndex = i;
-                    PacketsList.ScrollIntoView(PacketsList.SelectedItem);
+                    this.PacketsList.SelectedIndex = i;
+                    this.PacketsList.ScrollIntoView(PacketsList.SelectedItem);
                     return;
                 }
             }
@@ -286,10 +280,10 @@ namespace PacketViewer
 
             for (int i = 0; i < PacketsList.SelectedIndex; i++)
             {
-                if (pp.Packets[i].Hex.IndexOf(hex, 0, StringComparison.OrdinalIgnoreCase) == 0)
+                if (this.pp.Packets[i].Hex.IndexOf(hex, 0, StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    PacketsList.SelectedIndex = i;
-                    PacketsList.ScrollIntoView(PacketsList.SelectedItem);
+                    this.PacketsList.SelectedIndex = i;
+                    this.PacketsList.ScrollIntoView(PacketsList.SelectedItem);
                     return;
                 }
             }
@@ -297,19 +291,20 @@ namespace PacketViewer
 
         private void BoxNic_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (this.cap.IsRunning)
+                this.cap.StopCapture();
+
             string nic_des = (string)BoxNic.SelectedValue;
             string senderIp = ((string) BoxServers.Text).Split(';')[0];
 
-            if (CaptureRunning)
-            {
-                cap.StopCapture();
-              
-            }
+            this.pp.Init();
+            this.PacketsList.Items.Clear();
+            this.cap.StartCapture(nic_des, senderIp);
+        }
 
-            pp.Init();
-            PacketsList.Items.Clear();
-            cap.StartCapture(nic_des, senderIp);
-
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            Environment.Exit(0);
         }
     }
 }
