@@ -37,7 +37,7 @@
 
         <TextBox Name="OpCodeBox" Margin="10,64,34,0" Grid.Row="1" TextWrapping="Wrap" Text="Find OpCode" VerticalAlignment="Top" Height="22"/>
         <Button Content=">" Margin="0,64,0,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right" Width="29" Click="FindByOpCode" Height="22"/>
-        <ComboBox x:Name="BoxNic" HorizontalAlignment="Left" Margin="5,24,0,0" VerticalAlignment="Top" Width="649" Grid.Column="1" SelectionChanged="BoxNic_SelectionChanged"/>
+        <ComboBox x:Name="BoxNic" HorizontalAlignment="Left" Margin="197,24,0,0" VerticalAlignment="Top" Width="649" SelectionChanged="BoxNic_SelectionChanged" Grid.ColumnSpan="2"/>
         <ComboBox x:Name="BoxServers" HorizontalAlignment="Left" Margin="10,24,0,0" VerticalAlignment="Top" Width="182" SelectedIndex="2">
             <ComboBoxItem Content="79.110.94.217;EU Akasha"/>
             <ComboBoxItem Content="79.110.94.218;EU Arcadia"/>

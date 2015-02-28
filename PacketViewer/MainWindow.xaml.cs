@@ -30,6 +30,7 @@ namespace PacketViewer
         {
             InitializeComponent();
             this.Title = String.Format("Tera PacketViewer v{0}.{1}.{2}", Version.GetVersion.Major, Version.GetVersion.Minor, Version.GetVersion.Build);
+            
             Packet.Init();
 
             foreach (var packetName in Packet.ClientPacketNames)
@@ -55,8 +56,6 @@ namespace PacketViewer
                 this.BoxNic.Items.Add(nic);
             }
 
-            this.pp.Init();
-
             // ReSharper disable ObjectCreationAsStatement
             new FindAllNpcs(this);
             new FindAllTraidlists(this);
@@ -64,6 +63,11 @@ namespace PacketViewer
             new FindAllClimbs(this);
             new FindAllCampfires(this);
             // ReSharper restore ObjectCreationAsStatement
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            Environment.Exit(0);
         }
 
         public void OpenFile(object sender, RoutedEventArgs e)
@@ -292,20 +296,16 @@ namespace PacketViewer
 
         private void BoxNic_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            this.PacketsList.Items.Clear();
+
             if (this.cap.IsRunning)
                 this.cap.StopCapture();
 
-            string nic_des = (string)BoxNic.SelectedValue;
-            string senderIp = ((string) BoxServers.Text).Split(';')[0];
+            string nic_des = (string)this.BoxNic.SelectedValue;
+            string senderIp = ((string)this.BoxServers.Text).Split(';')[0];
 
             this.pp.Init();
-            this.PacketsList.Items.Clear();
             this.cap.StartCapture(nic_des, senderIp);
-        }
-
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            Environment.Exit(0);
         }
     }
 }
