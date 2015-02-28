@@ -1,7 +1,7 @@
 ﻿<Window x:Class="PacketViewer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="PacketSniffer -- Base by Cerium Unity -- Edit by GoneUp" Height="648" Width="898" Closing="Window_Closing">
+        Title="Tera PacketViewer" Height="648" Width="898" Closing="Window_Closing">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="233*"/>

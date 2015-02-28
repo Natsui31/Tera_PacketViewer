@@ -6,7 +6,7 @@
 /Crypt/obj
 /Data/obj
 /Network/obj
-/PacketWiewer/obj
+/PacketViewer/obj
 /Utils/obj
 /SharpPcap/obj
 
@@ -14,4 +14,5 @@
 /Binary
 
 # Some extension
-.suo
+*.suo
+*.csproj.user

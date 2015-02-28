@@ -29,6 +29,7 @@ namespace PacketViewer
         public MainWindow()
         {
             InitializeComponent();
+            this.Title = String.Format("Tera PacketViewer v{0}.{1}.{2}", Version.GetVersion.Major, Version.GetVersion.Minor, Version.GetVersion.Build);
             Packet.Init();
 
             foreach (var packetName in Packet.ClientPacketNames)
