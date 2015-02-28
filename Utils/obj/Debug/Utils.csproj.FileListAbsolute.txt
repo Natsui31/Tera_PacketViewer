@@ -1,5 +1,0 @@
-C:\Users\Natsui\Documents\GitHub\Tera_PacketViewer\Binary\Debug\Utils.dll
-C:\Users\Natsui\Documents\GitHub\Tera_PacketViewer\Binary\Debug\Utils.pdb
-C:\Users\Natsui\Documents\GitHub\Tera_PacketViewer\Utils\obj\Debug\Utils.csprojResolveAssemblyReference.cache
-C:\Users\Natsui\Documents\GitHub\Tera_PacketViewer\Utils\obj\Debug\Utils.dll
-C:\Users\Natsui\Documents\GitHub\Tera_PacketViewer\Utils\obj\Debug\Utils.pdb

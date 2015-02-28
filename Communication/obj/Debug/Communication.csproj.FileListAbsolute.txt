@@ -1,5 +1,0 @@
-C:\Users\Natsui\Documents\GitHub\Tera_PacketViewer\Binary\Debug\Communication.dll
-C:\Users\Natsui\Documents\GitHub\Tera_PacketViewer\Binary\Debug\Communication.pdb
-C:\Users\Natsui\Documents\GitHub\Tera_PacketViewer\Communication\obj\Debug\Communication.csprojResolveAssemblyReference.cache
-C:\Users\Natsui\Documents\GitHub\Tera_PacketViewer\Communication\obj\Debug\Communication.dll
-C:\Users\Natsui\Documents\GitHub\Tera_PacketViewer\Communication\obj\Debug\Communication.pdb
