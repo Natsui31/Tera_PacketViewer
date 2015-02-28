@@ -55,6 +55,7 @@ namespace PacketViewer
             {
                 this.BoxNic.Items.Add(nic);
             }
+            this.BoxNic.SelectedValue = this.BoxNic.Items[0];
 
             // ReSharper disable ObjectCreationAsStatement
             new FindAllNpcs(this);
@@ -294,18 +295,30 @@ namespace PacketViewer
             }
         }
 
-        private void BoxNic_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void CaptureMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            this.PacketsList.Items.Clear();
+            if ((string)this.CaptureMenuItem.Header == "Start Capture")
+            {
+                if (this.BoxNic.SelectedValue == null)
+                    return;
 
-            if (this.cap.IsRunning)
+                this.PacketsList.Items.Clear();
+
+                if (this.cap.IsRunning)
+                    this.cap.StopCapture();
+
+                string nic_des = (string)this.BoxNic.SelectedValue;
+                string senderIp = ((string)this.BoxServers.Text).Split(';')[0];
+
+                this.pp.Init();
+                this.cap.StartCapture(nic_des, senderIp);
+                this.CaptureMenuItem.Header = (object)"Stop Capture";
+            }
+            else
+            {
                 this.cap.StopCapture();
-
-            string nic_des = (string)this.BoxNic.SelectedValue;
-            string senderIp = ((string)this.BoxServers.Text).Split(';')[0];
-
-            this.pp.Init();
-            this.cap.StartCapture(nic_des, senderIp);
+                this.CaptureMenuItem.Header = (object)"Start Capture";
+            }
         }
     }
 }
