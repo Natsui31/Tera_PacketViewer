@@ -16,13 +16,11 @@ namespace Network
         public static void Init()
         {
             #region Client packets
-
-            //From jenova by angelis86, should be 2405
-            //https://code.google.com/p/tera-jenova/source/browse/trunk/src/TeraGame/src/main/java/com/angelis/tera/game/presentation/network/packet/ClientPacketHandler.java?r=61
+            // OPCODE For Client EU Revision 282514
             // AUTH
             Recv.Add((ushort)0x4DBC, "CM_CHECK_VERSION"); // OK
             Recv.Add((ushort)0xB114, "CM_ACCOUNT_AUTH"); // OK
-            Recv.Add((ushort)0xA204, "CM_HARDWARE_INFO"); // OK
+            Recv.Add((ushort)0xBFA4, "CM_HARDWARE_INFO"); // OK
 
             // CHARACTER
             Recv.Add((ushort)0x96F1, "CM_CHARACTER_LIST"); // OK
@@ -56,10 +54,10 @@ namespace Network
             Recv.Add((ushort)0x6CCD, "CM_OPTION_SET_VISIBILITY_DISTANCE"); // OK
 
             // CHAT
-            Recv.Add((ushort)0xA951, "CM_CHAT"); // OK
+            Recv.Add((ushort)0xF5B1, "CM_CHAT"); // OK
             Recv.Add((ushort)0x5F0E, "CM_CHAT_INFO"); // OK
             Recv.Add((ushort)0x5042, "CM_LOOKING_FOR_GROUP_CHAT_INFO"); // OK
-            Recv.Add((ushort)0xECF7, "CM_WHISP"); // OK
+            Recv.Add((ushort)0x5294, "CM_WHISP"); // OK
 
             // DIALOG
             Recv.Add((ushort)0x94BE, "CM_NPC_CONTACT"); // OK
@@ -79,7 +77,7 @@ namespace Network
             Recv.Add((ushort)0x738A, "CM_GLYPH_REINIT");
 
             // PLAYER
-            Recv.Add((ushort)0x4E90, "CM_PLAYER_MOVE"); // OK
+            Recv.Add((ushort)0x8147, "CM_PLAYER_MOVE"); // OK
             Recv.Add((ushort)0x6797, "CM_PLAYER_ZONE_CHANGE"); // OK
             Recv.Add((ushort)0xC6D1, "CM_LOOKING_FOR_BATTLEGROUND_WINDOW_OPEN"); // OK
             Recv.Add((ushort)0xC590, "CM_LOOKING_FOR_INSTANCE_WINDOW_OPEN"); // OK
@@ -184,10 +182,7 @@ namespace Network
             #endregion
 
             #region Server packets
-
-            //From jenova by angelis86, should be 2405
-            //https://code.google.com/p/tera-jenova/source/browse/trunk/src/TeraGame/src/main/java/com/angelis/tera/game/presentation/network/packet/ServerPacketHandler.java?r=61
-
+            // OPCODE For Server EU Revision 282543
             // AUTH
             Send.Add((ushort)0x4DBD, "SM_CHECK_VERSION"); // OK
             Send.Add((ushort)0xDC28, "SM_LOADING_SCREEN_CONTROL_INFO"); // OK
@@ -198,8 +193,8 @@ namespace Network
             Send.Add((ushort)0xC8A8, "SM_SYSTEM_INFO"); // OK
 
             // CHARACTER
-            Send.Add((ushort)0x65C6, "SM_CHARACTER_LIST"); // OK
-            Send.Add((ushort)0x6779, "SM_CHARACTER_CREATE_ALLOWED"); // OK
+            Send.Add((ushort)0xFE7B, "SM_CHARACTER_LIST"); // OK
+            Send.Add((ushort)0x726F, "SM_CHARACTER_CREATE_ALLOWED"); // OK
             Send.Add((ushort)0xB743, "SM_CHARACTER_CREATE_NAME_PATTERN_CHECK"); // OK
             Send.Add((ushort)0xB5C4, "SM_CHARACTER_CREATE_NAME_USED_CHECK"); // OK
             Send.Add((ushort)0x89C6, "SM_CHARACTER_CREATE"); // OK
@@ -270,7 +265,7 @@ namespace Network
             Send.Add((ushort)0x8CD3, "SM_CHAT_LOOKING_FOR_GROUP"); // OK
             Send.Add((ushort)0xA856, "SM_CHAT_LOOKING_FOR_GROUP_INFO"); // OK
             Send.Add((ushort)0x8A9F, "SM_CHAT_INFO"); // OK<
-            Send.Add((ushort)0x9F6E, "SM_WHISP"); // OK
+            Send.Add((ushort)0xF2BC, "SM_WHISP"); // OK
 
             // PLAYER
             Send.Add((ushort)0x7064, "SM_PLAYER_FRIEND_LIST"); // OK
