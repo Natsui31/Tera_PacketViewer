@@ -1,0 +1,17 @@
+# ReSharper Files
+/_ReSharper.Tera
+
+# Object C# Section
+/Communication/obj
+/Crypt/obj
+/Data/obj
+/Network/obj
+/PacketWiewer/obj
+/Utils/obj
+/SharpPcap/obj
+
+# Compiled Files
+/Binary
+
+# Some extension
+.suo
