@@ -23,6 +23,10 @@
             </MenuItem>
             <MenuItem Name="MacrosMenuItem" Header="Macros" />
             <MenuItem Name="CaptureMenuItem" Header="Start Capture" Click="CaptureMenuItem_Click"/>
+            <MenuItem Header="Clear Capture" Click="ClearCaptureMenuItem_Click"/>
+            <MenuItem Header="?">
+                <MenuItem Header="About..." Click="AboutThis_Click"/>
+            </MenuItem>
         </Menu>
 
         <ListBox Name="PacketsList" Margin="10,93,0,10" Grid.Row="1" SelectionChanged="OnPacketSelect"/>
@@ -38,8 +42,8 @@
 
         <TextBox Name="OpCodeBox" Margin="10,64,34,0" Grid.Row="1" TextWrapping="Wrap" Text="Find OpCode" VerticalAlignment="Top" Height="22"/>
         <Button Content=">" Margin="0,64,0,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right" Width="29" Click="FindByOpCode" Height="22"/>
-        <ComboBox x:Name="BoxNic" HorizontalAlignment="Left" Margin="197,24,0,0" VerticalAlignment="Top" Width="649" Grid.ColumnSpan="2"/>
-        <ComboBox x:Name="BoxServers" HorizontalAlignment="Left" Margin="10,24,0,0" VerticalAlignment="Top" Width="182" SelectedIndex="2">
+        <ComboBox x:Name="BoxNic" HorizontalAlignment="Left" Margin="5,24,0,0" VerticalAlignment="Top" Width="649" Grid.Column="1"/>
+        <ComboBox x:Name="BoxServers" HorizontalAlignment="Left" Margin="10,24,0,0" VerticalAlignment="Top" Width="182">
             <ComboBoxItem Content="79.110.94.217;EU Akasha"/>
             <ComboBoxItem Content="79.110.94.218;EU Arcadia"/>
             <ComboBoxItem Content="79.110.94.214;EU Elinu" IsSelected="True"/>

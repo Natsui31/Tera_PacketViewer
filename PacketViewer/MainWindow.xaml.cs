@@ -108,16 +108,12 @@ namespace PacketViewer
                         if (isServer)
                         {
                             this.pp.AppendServerData(data);
-                            // ReSharper disable CSharpWarnings::CS0642
-                            while (this.pp.ProcessServerData()) ;
-                            // ReSharper restore CSharpWarnings::CS0642
+                            while (this.pp.ProcessServerData()) { };
                         }
                         else
                         {
                             this.pp.AppendClientData(data);
-                            // ReSharper disable CSharpWarnings::CS0642
-                            while (this.pp.ProcessClientData()) ;
-                            // ReSharper restore CSharpWarnings::CS0642
+                            while (this.pp.ProcessClientData()) { };
                         }
                     }
                 }
@@ -319,6 +315,18 @@ namespace PacketViewer
                 this.cap.StopCapture();
                 this.CaptureMenuItem.Header = (object)"Start Capture";
             }
+        }
+
+        private void ClearCaptureMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            this.PacketsList.Items.Clear();
+            this.pp.Packets.Clear();
+        }
+
+        private void AboutThis_Click(object sender, RoutedEventArgs e)
+        {
+            var aboutThisForm = new AboutBox();
+            aboutThisForm.ShowDialog();
         }
     }
 }

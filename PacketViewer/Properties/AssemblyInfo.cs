@@ -8,10 +8,10 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Tera PacketViewer")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Tera PacketViewer is a simple .NET application for handle packet from The Exiled Realm of Arborea.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("PacketViewer")]
+[assembly: AssemblyProduct("Tera PacketViewer")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
