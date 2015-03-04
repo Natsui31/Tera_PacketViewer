@@ -297,30 +297,39 @@ namespace PacketViewer
             {
                 if (this.BoxNic.SelectedValue == null)
                     return;
-
-                this.PacketsList.Items.Clear();
-
                 if (this.cap.IsRunning)
                     this.cap.StopCapture();
+
+                this.pp.Init();
+                ClearCaptureMenuItem_Click(null, null);             
 
                 string nic_des = (string)this.BoxNic.SelectedValue;
                 string senderIp = ((string)this.BoxServers.Text).Split(';')[0];
 
-                this.pp.Init();
                 this.cap.StartCapture(nic_des, senderIp);
+                this.BoxNic.IsEnabled = false;
+                this.BoxServers.IsEnabled = false;
                 this.CaptureMenuItem.Header = (object)"Stop Capture";
             }
             else
             {
                 this.cap.StopCapture();
+                this.BoxNic.IsEnabled = true;
+                this.BoxServers.IsEnabled = true;
                 this.CaptureMenuItem.Header = (object)"Start Capture";
             }
         }
 
         private void ClearCaptureMenuItem_Click(object sender, RoutedEventArgs e)
         {
+            if (this.cap.IsRunning)
+                this.pp.Packets.Clear();
             this.PacketsList.Items.Clear();
-            this.pp.Packets.Clear();
+
+            this.OpCodeBox.Text = "Find OpCode";
+            this.HexBox.Text = "Find Hex";
+            this.SetHex("");
+            this.SetText("");
         }
 
         private void AboutThis_Click(object sender, RoutedEventArgs e)

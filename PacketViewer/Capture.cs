@@ -63,7 +63,10 @@ namespace PacketViewer
             }
 
             if (this.device == null)
-                MessageBox.Show("Device Fail");
+            {
+                MessageBox.Show("DEVICE FAILED TO INITIALIZE", "WRONG DEVICE!", 0, MessageBoxImage.Error);
+                throw new ArgumentNullException("Device failed to initialize");
+            }
    
             // Register our handler function to the
             // 'packet arrival' event
