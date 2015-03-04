@@ -52,8 +52,15 @@ namespace PacketViewer
                 Name = string.Format("0x{0}{1}", opCodeLittleEndianHex.Substring(2),
                                      opCodeLittleEndianHex.Substring(0, 2));
             }
-            
-            Hex = Data.ToHex().Substring(4);
+            try
+            {
+                Hex = Data.ToHex().Substring(4);
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                MessageBox.Show(e.Message);
+                return;
+            }
 
             Text = "0x" + Hex.Substring(2, 2) + Hex.Substring(0, 2) + "\n\n" + Data.FormatHex();
         }
