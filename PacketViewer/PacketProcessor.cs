@@ -121,8 +121,12 @@ namespace PacketViewer
                 return false;
 
             ushort opCode = BitConverter.ToUInt16(ServerBuffer, 2);
+            byte[] data = GetServerData(length);
 
-            Packets.Add(new Packet(true, opCode, GetServerData(length)));
+            if ((opCode < (ushort)0xFFF) && (data.LongLength < 4)) // Dirty fix for avoid null/corrupted packet
+                return false;
+
+            Packets.Add(new Packet(true, opCode, data));
 
             string itemText = string.Format("[S] {0} [{1}]"
                                             , Packets[Packets.Count - 1].Name
@@ -174,8 +178,12 @@ namespace PacketViewer
                 return false;
 
             ushort opCode = BitConverter.ToUInt16(ClientBuffer, 2);
+            byte[] data = GetClientData(length);
 
-            Packets.Add(new Packet(false, opCode, GetClientData(length)));
+            if ((opCode < (ushort)0xFFF) && (data.LongLength < 4)) // Dirty fix for avoid null/corrupted packet
+                return false;
+
+            Packets.Add(new Packet(false, opCode, data));
 
             string itemText = string.Format("[C] {0} [{1}]"
                                             , Packets[Packets.Count - 1].Name

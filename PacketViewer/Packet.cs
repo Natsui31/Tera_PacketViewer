@@ -34,17 +34,17 @@ namespace PacketViewer
 
         public Packet(bool isServer, ushort opCode, byte[] data)
         {
-            IsServer = isServer;
-            OpCode = opCode;
-            Data = data;
+            this.IsServer = isServer;
+            this.OpCode = opCode;
+            this.Data = data;
 
             if (isServer && ServerPacketNames.ContainsKey(opCode))
             {
-                Name = ServerPacketNames[opCode];
+                this.Name = ServerPacketNames[opCode];
             }
             else if (!isServer && ClientPacketNames.ContainsKey(opCode))
             {
-                Name = ClientPacketNames[opCode];
+                this.Name = ClientPacketNames[opCode];
             }
             else
             {
@@ -52,16 +52,9 @@ namespace PacketViewer
                 Name = string.Format("0x{0}{1}", opCodeLittleEndianHex.Substring(2),
                                      opCodeLittleEndianHex.Substring(0, 2));
             }
-            try
-            {
-                Hex = Data.ToHex().Substring(4);
-            }
-            catch (ArgumentOutOfRangeException e)
-            {
-                MessageBox.Show(e.Message);
-                return;
-            }
-
+            
+            Hex = Data.ToHex().Substring(4);
+            
             Text = "0x" + Hex.Substring(2, 2) + Hex.Substring(0, 2) + "\n\n" + Data.FormatHex();
         }
 

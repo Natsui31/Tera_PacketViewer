@@ -128,9 +128,7 @@ namespace PacketViewer
 
                     //Sever -> Client
                     this.MainWindow.pp.AppendServerData(tcp.PayloadData);
-                    // ReSharper disable CSharpWarnings::CS0642
-                    while (this.MainWindow.pp.ProcessServerData()) ;
-                    // ReSharper restore CSharpWarnings::CS0642
+                    while (this.MainWindow.pp.ProcessServerData()) { };
                 }
 
             }
