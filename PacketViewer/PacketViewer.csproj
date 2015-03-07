@@ -101,11 +101,11 @@
     </Compile>
     <Compile Include="Capture.cs" />
     <Compile Include="InputValueBox.cs" />
-    <Compile Include="Macros\FindAllCampfires.cs" />
-    <Compile Include="Macros\FindAllClimbs.cs" />
-    <Compile Include="Macros\FindAllGatherables.cs" />
-    <Compile Include="Macros\FindAllNpcs.cs" />
-    <Compile Include="Macros\FindAllTraidlists.cs" />
+    <None Include="Macros\FindAllCampfires.cs" />
+    <None Include="Macros\FindAllClimbs.cs" />
+    <None Include="Macros\FindAllGatherables.cs" />
+    <None Include="Macros\FindAllNpcs.cs" />
+    <None Include="Macros\FindAllTraidlists.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
