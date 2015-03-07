@@ -13,7 +13,8 @@ using Data.Structures.Quest;
 using Microsoft.Win32;
 using PacketDotNet;
 using PacketDotNet.Utils;
-using PacketViewer.Macros;
+using PacketViewer;
+using Network;
 using SharpPcap;
 using Utils;
 
@@ -31,19 +32,16 @@ namespace PacketViewer
             InitializeComponent();
             this.Title = String.Format("Tera PacketViewer v{0}.{1}.{2}", Version.GetVersion.Major, Version.GetVersion.Minor, Version.GetVersion.Build);
             
-            Packet.Init();
+            foreach (var opcode in Enum.GetNames(typeof(OpcodeFlags)))
+                this.PacketNamesList.Items.Add(opcode);
 
-            foreach (var packetName in Packet.ClientPacketNames)
-                this.PacketNamesList.Items.Add(packetName.Value);
-
+            /*
             this.PacketNamesList.Items.Add(new Separator
                                           {
                                               HorizontalAlignment = HorizontalAlignment.Stretch,
                                               IsEnabled = false
                                           });
-
-            foreach (var packetName in Packet.ServerPacketNames)
-                this.PacketNamesList.Items.Add(packetName.Value);
+            */
 
             this.PacketNamesList.SelectedIndex = 0;
 
@@ -58,11 +56,11 @@ namespace PacketViewer
             this.BoxNic.SelectedValue = this.BoxNic.Items[0];
 
             // ReSharper disable ObjectCreationAsStatement
-            new FindAllNpcs(this);
-            new FindAllTraidlists(this);
-            new FindAllGatherables(this);
-            new FindAllClimbs(this);
-            new FindAllCampfires(this);
+            //new FindAllNpcs(this);
+            //new FindAllTraidlists(this);
+            //new FindAllGatherables(this);
+            //new FindAllClimbs(this);
+            //new FindAllCampfires(this);
             // ReSharper restore ObjectCreationAsStatement
         }
 
@@ -100,17 +98,17 @@ namespace PacketViewer
                             continue;
                         }
 
-                        bool isServer = line[0] == ' ';
+                        PacketType type = (line[0] == ' ') ? PacketType.Server : PacketType.Client;
 
-                        string hex = line.Substring(isServer ? 14 : 10, 49).Replace(" ", "");
+                        string hex = line.Substring(type == PacketType.Server ? 14 : 10, 49).Replace(" ", "");
                         byte[] data = hex.ToBytes();
-
-                        if (isServer)
+                        
+                        if (type == PacketType.Server)
                         {
                             this.pp.AppendServerData(data);
                             while (this.pp.ProcessServerData()) { };
                         }
-                        else
+                        else if (type == PacketType.Client)
                         {
                             this.pp.AppendClientData(data);
                             while (this.pp.ProcessClientData()) { };

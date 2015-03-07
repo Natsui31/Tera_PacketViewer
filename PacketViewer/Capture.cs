@@ -26,9 +26,9 @@ namespace PacketViewer
         {
             get
             {
-                if (device == null)
+                if (this.device == null)
                     return false;
-                return device.Started;
+                return this.device.Started;
             }
         }
 
@@ -39,12 +39,9 @@ namespace PacketViewer
 
         public IEnumerable<string> GetDevices()
         {
-            List<string> tmpList = new List<string>();
-            CaptureDeviceList deviceList = CaptureDeviceList.Instance;
-
-            foreach (ICaptureDevice device in deviceList)
+            foreach (ICaptureDevice dev in CaptureDeviceList.Instance)
             {
-                yield return device.Description;
+                yield return dev.Description;
             }
         }
 
@@ -53,21 +50,17 @@ namespace PacketViewer
             this.device = null;
             if (deviceName == "" || ip == "")
                 return;
-        
-            CaptureDeviceList deviceList = CaptureDeviceList.Instance;
-            
-            foreach (var dev in deviceList)
-            {
-                if (dev.Description == deviceName)
-                    this.device = dev;
-            }
 
-            if (this.device == null)
+            try
+            {
+                this.device = CaptureDeviceList.Instance.Where(dev => dev.Description == deviceName).Select(dev => dev).First();
+            }
+            catch
             {
                 MessageBox.Show("DEVICE FAILED TO INITIALIZE", "WRONG DEVICE!", 0, MessageBoxImage.Error);
-                throw new ArgumentNullException("Device failed to initialize");
+                throw;
             }
-   
+
             // Register our handler function to the
             // 'packet arrival' event
             this.device.OnPacketArrival += new SharpPcap.PacketArrivalEventHandler(device_OnPacketArrival);
@@ -108,10 +101,8 @@ namespace PacketViewer
                 {
                     //Client -> Server
                     this.MainWindow.pp.AppendClientData(tcp.PayloadData);
-                    
-                    // ReSharper disable CSharpWarnings::CS0642
-                    while (this.MainWindow.pp.ProcessClientData()) ;
-                    // ReSharper restore CSharpWarnings::CS0642
+
+                    while (this.MainWindow.pp.ProcessClientData()) { };
                 }
                 else
                 {

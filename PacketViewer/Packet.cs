@@ -1,50 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
+using System.Text;
+using System.Threading.Tasks;
 using Network;
 using Utils;
 
 namespace PacketViewer
 {
+    public enum PacketType
+    {
+        Client = 0,
+        Server = 1,
+    };
+
     public class Packet
     {
-        public static Dictionary<ushort, string> ServerPacketNames = new Dictionary<ushort, string>();
-        public static Dictionary<ushort, string> ClientPacketNames = new Dictionary<ushort, string>();
+        public PacketType Type { get; private set; }
+        public string Name { get; private set; }
+        public byte[] Data { get; private set; }
+        public string Hex { get; private set; }
+        public string Text { get; private set; }
 
-        public static void Init()
+        public Packet(PacketType type, ushort opCode, byte[] data)
         {
-            OpCodes.Init();
-
-            foreach (KeyValuePair<ushort, string> keyValuePair in OpCodes.Send)
-                ServerPacketNames.Add(keyValuePair.Key, keyValuePair.Value);
-
-            foreach (KeyValuePair<ushort, string> keyValuePair in OpCodes.Recv)
-                ClientPacketNames.Add(keyValuePair.Key, keyValuePair.Value);
-        }
-
-        public bool IsServer { get; set; }
-        public ushort OpCode { get; set; }
-        public byte[] Data { get; set; }
-
-        public string Name { get; set; }
-
-        public string Hex { get; set; }
-        public string Text { get; set; }
-
-        public Packet(bool isServer, ushort opCode, byte[] data)
-        {
-            this.IsServer = isServer;
-            this.OpCode = opCode;
+            this.Type = type;
             this.Data = data;
 
-            if (isServer && ServerPacketNames.ContainsKey(opCode))
+            if (Enum.IsDefined(typeof(OpcodeFlags), (object)opCode))
             {
-                this.Name = ServerPacketNames[opCode];
-            }
-            else if (!isServer && ClientPacketNames.ContainsKey(opCode))
-            {
-                this.Name = ClientPacketNames[opCode];
+                this.Name = ((OpcodeFlags)opCode).ToString();
             }
             else
             {
@@ -52,42 +37,40 @@ namespace PacketViewer
                 Name = string.Format("0x{0}{1}", opCodeLittleEndianHex.Substring(2),
                                      opCodeLittleEndianHex.Substring(0, 2));
             }
-            
+
             Hex = Data.ToHex().Substring(4);
-            
+
             Text = "0x" + Hex.Substring(2, 2) + Hex.Substring(0, 2) + "\n\n" + Data.FormatHex();
         }
 
-        public static ushort GetPacketOpcode(MainWindow window, string name, bool isServer = true)
+        /*public static ushort GetPacketOpcode(MainWindow window, string name, OpcodeFlags flags)
         {
             ushort opCode =
                 (from val in isServer ? ServerPacketNames : ClientPacketNames
                  where val.Value.Equals(name)
                  select val.Key).FirstOrDefault();
 
-            if(opCode == 0)
+            if (opCode == 0)
             {
                 while (true)
                 {
                     try
                     {
-                        InputValueBox inputBox = new InputValueBox(window, "Need to enter opcode", "Enter "+ name +" opcode: ");
+                        InputValueBox inputBox = new InputValueBox(window, "Need to enter opcode", "Enter " + name + " opcode: ");
                         if (inputBox.Show() == false)
                             return 0;
 
                         opCode = BitConverter.ToUInt16(inputBox.Result.ToBytes(), 0);
                         break;
                     }
-                    // ReSharper disable EmptyGeneralCatchClause
-                    catch
-                    // ReSharper restore EmptyGeneralCatchClause
+                    catch (Exception e)
                     {
-                        MessageBox.Show("WRONG PARAMS!", "Error", 0, MessageBoxImage.Warning);
+                        System.Windows.MessageBox.Show("WRONG PARAMS!", "Error", 0, System.Windows.MessageBoxImage.Warning);
                     }
                 }
             }
 
             return opCode;
-        }
+        }*/
     }
 }

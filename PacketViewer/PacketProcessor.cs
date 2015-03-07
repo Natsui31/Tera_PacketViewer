@@ -27,7 +27,6 @@ namespace PacketViewer
             MainWindow = mainWindow;
         }
 
-
         public void Init()
         {
             SecSession = new Session();
@@ -126,7 +125,7 @@ namespace PacketViewer
             if ((opCode < (ushort)0xFFF) && (data.LongLength < 4)) // Dirty fix for avoid null/corrupted packet
                 return false;
 
-            Packets.Add(new Packet(true, opCode, data));
+            Packets.Add(new Packet(PacketType.Server, opCode, data));
 
             string itemText = string.Format("[S] {0} [{1}]"
                                             , Packets[Packets.Count - 1].Name
@@ -183,7 +182,7 @@ namespace PacketViewer
             if ((opCode < (ushort)0xFFF) && (data.LongLength < 4)) // Dirty fix for avoid null/corrupted packet
                 return false;
 
-            Packets.Add(new Packet(false, opCode, data));
+            Packets.Add(new Packet(PacketType.Client, opCode, data));
 
             string itemText = string.Format("[C] {0} [{1}]"
                                             , Packets[Packets.Count - 1].Name
