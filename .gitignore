@@ -2,9 +2,6 @@
 /_ReSharper.Tera
 
 # Object C# Section
-/Communication/obj
-/Crypt/obj
-/Data/obj
 /Network/obj
 /PacketViewer/obj
 /Utils/obj

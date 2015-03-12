@@ -144,26 +144,26 @@ namespace SharpPcap
         int GetNextPacketPointers(ref IntPtr header, ref IntPtr data);
 
         /// <summary>
-        /// Sends a raw packet throgh this device
+        /// Sends a raw packet through this device
         /// </summary>
         /// <param name="p">The packet to send</param>
         void SendPacket(PacketDotNet.Packet p);
 
         /// <summary>
-        /// Sends a raw packet throgh this device
+        /// Sends a raw packet through this device
         /// </summary>
         /// <param name="p">The packet to send</param>
         /// <param name="size">The number of bytes to send</param>
         void SendPacket(PacketDotNet.Packet p, int size);
 
         /// <summary>
-        /// Sends a raw packet throgh this device
+        /// Sends a raw packet through this device
         /// </summary>
         /// <param name="p">The packet bytes to send</param>
         void SendPacket(byte[] p);
 
         /// <summary>
-        /// Sends a raw packet throgh this device
+        /// Sends a raw packet through this device
         /// </summary>
         /// <param name="p">The packet bytes to send</param>
         /// <param name="size">The number of bytes to send</param>

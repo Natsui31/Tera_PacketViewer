@@ -8,11 +8,17 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Tera PacketViewer")]
-[assembly: AssemblyDescription("Tera PacketViewer is a simple .NET application for handle packet from The Exiled Realm of Arborea.")]
+[assembly: AssemblyDescription("Tera PacketViewer is a simple .NET application for handle packet from The Exiled Realm of Arborea game. \r\n" +
+                               "\r\n" +
+                               "Credits to : \r\n" +
+                               "\r\n" +
+                               "Cerium Unity \r\n" +
+                               "GoneUp \r\n" +
+                               "Natsui31")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Tera PacketViewer")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2012")]
+[assembly: AssemblyCopyright("Copyright © 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,5 +57,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0")]
-[assembly: AssemblyFileVersion("1.0.0")]
+[assembly: AssemblyVersion("1.2.*")]
+[assembly: AssemblyFileVersion("1.2")]

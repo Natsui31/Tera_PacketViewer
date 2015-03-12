@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace PacketViewer
+namespace Network_Handler_SimpleViewer
 {
     /// <summary>
     /// Interaction logic for App.xaml

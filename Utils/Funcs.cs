@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
+using System.Net;
 
 namespace Utils
 {
@@ -15,9 +16,7 @@ namespace Utils
 
         public static int GetRoundedUtc()
         {
-            // ReSharper disable PossibleLossOfFraction
             return (int) Math.Round((double) (GetCurrentMilliseconds()/1000));
-            // ReSharper restore PossibleLossOfFraction
         }
 
         private static readonly DateTime StaticDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -111,6 +110,18 @@ namespace Utils
                 return false;
 
             return new Random().Next(0, 100) <= chance;
+        }
+
+        public static bool PortIsValid(string port)
+        {
+            try
+            {
+                uint portAsUInt = uint.Parse(port);
+                if (portAsUInt == 0 || portAsUInt >= 65535)
+                    return false;
+            }
+            catch { return false; }
+            return true;
         }
     }
 }

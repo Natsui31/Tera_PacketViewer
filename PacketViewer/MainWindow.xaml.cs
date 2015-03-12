@@ -1,214 +1,194 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Threading;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading;
-using Crypt;
-using Data.Structures.Quest;
-using Microsoft.Win32;
-using PacketDotNet;
-using PacketDotNet.Utils;
-using PacketViewer;
-using Network;
-using SharpPcap;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using Network.PacketHandler;
 using Utils;
-
-//Base by Cerium Unity. Edit by GoneUp. 21.02.2014
 
 namespace PacketViewer
 {
-    public partial class MainWindow
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
     {
-        public Capture cap;
-        public PacketProcessor pp;
-
+        private Capture Capture;
+        private ObservableCollection<Packet> Packets;
+        
         public MainWindow()
         {
             InitializeComponent();
-            this.Title = String.Format("Tera PacketViewer v{0}.{1}.{2}", Version.GetVersion.Major, Version.GetVersion.Minor, Version.GetVersion.Build);
-            
-            foreach (var opcode in Enum.GetNames(typeof(OpcodeFlags)))
-                this.PacketNamesList.Items.Add(opcode);
+            this.Title = String.Format("Tera PacketViewer v{0}.{1}", Version.GetVersion.Major, Version.GetVersion.Minor);
+            this.DataContext = this;
 
-            /*
-            this.PacketNamesList.Items.Add(new Separator
-                                          {
-                                              HorizontalAlignment = HorizontalAlignment.Stretch,
-                                              IsEnabled = false
-                                          });
-            */
+            foreach (var device in Capture.GetDevicesName())
+                DeviceListBox.Items.Add(device);
 
-            this.PacketNamesList.SelectedIndex = 0;
+            foreach (var elem in Enum.GetNames(typeof(OpCode)).OrderBy(e => e))
+                this.OpcodeListBox.Items.Add(elem);
 
-
-            this.pp = new PacketProcessor(this);
-            this.cap = new Capture(this);
-
-            foreach (var nic in cap.GetDevices())
-            {
-                this.BoxNic.Items.Add(nic);
-            }
-            this.BoxNic.SelectedValue = this.BoxNic.Items[0];
-
-            // ReSharper disable ObjectCreationAsStatement
-            //new FindAllNpcs(this);
-            //new FindAllTraidlists(this);
-            //new FindAllGatherables(this);
-            //new FindAllClimbs(this);
-            //new FindAllCampfires(this);
-            // ReSharper restore ObjectCreationAsStatement
+            this.ServerListBox.SelectedIndex = 0;
+            this.DeviceListBox.SelectedIndex = 0;
         }
 
-        private void Window_Closing(object sender, CancelEventArgs e)
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            Environment.Exit(0);
+            this.Dispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Send);
+            if (this.Capture != null)
+                if (this.Capture.IsRunning)
+                    this.Capture.Stop();
+            this.Capture = null;
         }
 
-        public void OpenFile(object sender, RoutedEventArgs e)
+        private void ClearGUI()
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog {Filter = "*.hex|*.hex"};
-
-            if (openFileDialog.ShowDialog() == false)
-                return;
-
-            this.pp.Init();
-            this.pp.OpenFileMode = true;
-
-            this.PacketsList.Items.Clear();
-
-            using (FileStream fileStream = File.OpenRead(openFileDialog.FileName))
-            {
-                using (TextReader stream = new StreamReader(fileStream))
-                {
-                    while (true)
-                    {
-                        string line = stream.ReadLine();
-                        if (line == null)
-                            break;
-                        if (line.Length == 0)
-                            continue;
-                        if (this.pp.State == -1)
-                        {
-                            this.pp.State = 0;
-                            continue;
-                        }
-
-                        PacketType type = (line[0] == ' ') ? PacketType.Server : PacketType.Client;
-
-                        string hex = line.Substring(type == PacketType.Server ? 14 : 10, 49).Replace(" ", "");
-                        byte[] data = hex.ToBytes();
-                        
-                        if (type == PacketType.Server)
-                        {
-                            this.pp.AppendServerData(data);
-                            while (this.pp.ProcessServerData()) { };
-                        }
-                        else if (type == PacketType.Client)
-                        {
-                            this.pp.AppendClientData(data);
-                            while (this.pp.ProcessClientData()) { };
-                        }
-                    }
-                }
-            }
-
-            SetText("Loaded " + this.pp.Packets.Count + " packets...");
+            // Clear GUI
+                if (this.Capture != null)
+                    this.Packets.Clear();
+                this.PacketsListBox.Items.Clear();
+                this.FindHexBox.Text = "Find Hex";
+                this.FindOpcodeBox.Text = "Find Opcode";
+                this.HexViewTextBox.Document.Blocks.Clear();
+                this.DataViewTextBox.Document.Blocks.Clear();
         }
 
-        private void Exit(object sender, RoutedEventArgs e)
+        private void ExitMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
 
-        public void ClearPackets()
+        private void CaptureMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            Dispatcher.BeginInvoke(
-                new Action(
-                    delegate
-                    {
-                        this.PacketsList.Items.Clear();
-                    }));
-        }
-
-        public void AppendPacket(Color col, string itemText)
-        {
-            Dispatcher.BeginInvoke(
-                new Action(
-                    delegate
-                    {
-                        ListBoxItem item = new ListBoxItem
-                        {
-                            Content = itemText,
-                            Background = new SolidColorBrush(col)
-                         };
-
-                        this.PacketsList.Items.Add(item);
-
-                        this.PacketsList.ScrollIntoView(item);
-                    }));
-        }
-
-        public void SetHex(string text)
-        {
-            Dispatcher.BeginInvoke(
-                new Action(
-                    delegate
-                    {
-                        this.HexTextBox.Document.Blocks.Clear();
-                        this.HexTextBox.Document.Blocks.Add(new Paragraph(new Run(text)));
-                    }));
-        }
-
-        public void AppendHex(string text)
-        {
-            Dispatcher.BeginInvoke(
-                new Action(
-                    delegate
-                    {
-                        this.HexTextBox.Document.Blocks.Add(new Paragraph(new Run(text)));
-                    }));
-        }
-
-        public void SetText(string text)
-        {
-            Dispatcher.BeginInvoke(
-                new Action(
-                    delegate
-                        {
-                            this.TextBox.Document.Blocks.Clear();
-                            this.TextBox.Document.Blocks.Add(new Paragraph(new Run(text)));
-                        }));
-        }
-
-        private void OnPacketSelect(object sender, SelectionChangedEventArgs e)
-        {
-            if (PacketsList.SelectedIndex == -1)
-                return;
-
-            this.SetHex(pp.Packets[PacketsList.SelectedIndex].Hex);
-            this.SetText(pp.Packets[PacketsList.SelectedIndex].Text);
-
-            this.OpCodeBox.Text = this.pp.Packets[PacketsList.SelectedIndex].Hex.Substring(0, 4);
-        }
-
-        private void FindByName(object sender, RoutedEventArgs e)
-        {
-            if (this.pp.Packets == null)
-                return;
-
-            string name = this.PacketNamesList.SelectedItem.ToString();
-
-            for (int i = this.PacketsList.SelectedIndex + 1; i < this.pp.Packets.Count; i++)
+            if ((string)CaptureMenuItem.Header == "Start Capture")
             {
-                if (this.pp.Packets[i].Name == name)
+                if (this.Capture != null)
+                    this.ClearGUI(); // Clear GUI
+
+                CaptureMenuItem.Header = "Stop Capture";
+                this.ServerListBox.IsEnabled = false;
+                this.DeviceListBox.IsEnabled = false;
+
+                // Create new class with Selected Device
+                this.Capture = new Capture((string)DeviceListBox.SelectedItem);
+                this.Packets = this.Capture.PacketProcessor.Packets;
+
+                // Define Filters for Capture Process
+                string serverBox = this.ServerListBox.SelectionBoxItem.ToString();
+                if (serverBox.Contains(':'))
                 {
-                    this.PacketsList.SelectedIndex = i;
-                    this.PacketsList.ScrollIntoView(this.PacketsList.SelectedItem);
+                    string[] splittedString = serverBox.Split(':');
+                    IPAddress.Parse(splittedString[0]); // Lazy Check IP
+                    this.Capture.SetFilter(splittedString[0], splittedString[1]);
+                }
+                else
+                {
+                    if (serverBox.Contains('.'))
+                        IPAddress.Parse(serverBox); // Lazy Check IP
+                    else
+                        try { serverBox = ServerTera.List.Where(elem => elem.Key == serverBox).Select(elem => elem.Value).First(); }
+                        catch { }
+                    this.Capture.SetFilter(serverBox);
+                }
+
+                // Set Event
+                this.Packets.CollectionChanged += new NotifyCollectionChangedEventHandler(OnPacket_Added);
+
+                // Start Capture on Device
+                this.Capture.Start();
+
+            }
+            else if ((string)CaptureMenuItem.Header == "Stop Capture")
+            {
+                CaptureMenuItem.Header = "Start Capture";
+                this.ServerListBox.IsEnabled = true;
+                this.DeviceListBox.IsEnabled = true;
+
+                // Stop Capture on Device
+                this.Capture.Stop();
+            }
+            else throw new Exception("Dirty Thing happened"); // Avoid dirty thing.
+        }
+
+        private void NewServerAddress_OnList(object sender, RoutedEventArgs e)
+        {
+            string value = "127.0.0.1 or 127.0.0.1:11101";
+            if (InputBox.Show("New Server Address", "Enter New Server Address:", ref value) == System.Windows.Forms.DialogResult.OK)
+            {
+                this.ServerListBox.Items.Add(value);
+                this.ServerListBox.SelectedIndex = (this.ServerListBox.Items.Count - 1);
+            }
+        }
+
+        private void OnPacket_Added(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            
+            this.Dispatcher.BeginInvoke(new Action(delegate
+                {
+                    Packet packet = this.Packets[e.NewStartingIndex];
+                    bool isClient = (packet.Source == PacketSource.Client);
+                    Color color = isClient ? Colors.WhiteSmoke : Colors.LightBlue;
+                    ListBoxItem item = new ListBoxItem
+                    {
+                        Content = (object)String.Format("[{0}] {1} [{2}]",
+                                                        isClient ? "C" : "S",
+                                                        packet.GetOpcodeName(),
+                                                        packet.Data.Length),
+                        Background = new SolidColorBrush(color),
+                    };
+                    this.PacketsListBox.Items.Add(item);
+                }), System.Windows.Threading.DispatcherPriority.Normal);
+        }
+
+        private void OpcodeListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(delegate
+                {
+                    if (this.PacketsListBox.SelectedIndex == -1)
+                        return;
+                    if (this.Packets == null)
+                        return;
+
+                    // Get Packet on Packets Collection
+                    var packet = this.Packets[this.PacketsListBox.SelectedIndex];
+
+                    // Set Opcode on FindOpcodeBox
+                    this.FindOpcodeBox.Text = packet.GetOpcode();
+
+                    // Set Data as it on HexViewBox
+                    this.HexViewTextBox.Document.Blocks.Clear();
+                    this.HexViewTextBox.Document.Blocks.Add(new Paragraph(new Run(packet.Data.ToHex())));
+
+                    // Set Packet on DataViewBox
+                    this.DataViewTextBox.Document.Blocks.Clear();
+                    this.DataViewTextBox.Document.Blocks.Add(new Paragraph(new Run(packet.ToString())));
+                }));
+        }
+
+        private void SearchEnumButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.Packets == null || this.Packets.Count == 0)
+                return;
+            string name = this.OpcodeListBox.SelectedItem.ToString();
+
+            for (int i = this.PacketsListBox.SelectedIndex + 1; i < this.PacketsListBox.Items.Count; i++)
+            {
+                if (this.Packets[i].GetOpcodeName() == name)
+                {
+                    this.PacketsListBox.Focus();
+                    this.PacketsListBox.SelectedIndex = i;
+                    this.PacketsListBox.ScrollIntoView(this.PacketsListBox.SelectedItem);
                     return;
                 }
             }
@@ -216,30 +196,31 @@ namespace PacketViewer
             if (MessageBox.Show("Find from start?", "Not found", MessageBoxButton.YesNo) == MessageBoxResult.No)
                 return;
 
-            for (int i = 0; i < this.PacketsList.SelectedIndex; i++)
+            for (int i = 0; i < this.PacketsListBox.SelectedIndex; i++)
             {
-                if (this.pp.Packets[i].Name == name)
+                if (this.Packets[i].GetOpcodeName() == name)
                 {
-                    this.PacketsList.SelectedIndex = i;
-                    this.PacketsList.ScrollIntoView(this.PacketsList.SelectedItem);
+                    this.PacketsListBox.Focus();
+                    this.PacketsListBox.SelectedIndex = i;
+                    this.PacketsListBox.ScrollIntoView(this.PacketsListBox.SelectedItem);
                     return;
                 }
             }
         }
 
-        private void FindByHex(object sender, RoutedEventArgs e)
+        private void SearchHexButton_Click(object sender, RoutedEventArgs e)
         {
-            if (this.pp.Packets == null)
+            if (this.Packets == null || this.Packets.Count == 0)
                 return;
 
-            string hex = this.HexBox.Text.Replace(" ", "");
+            string hex = this.FindHexBox.Text.Replace(" ", "");
 
-            for (int i = this.PacketsList.SelectedIndex + 1; i < this.pp.Packets.Count; i++)
+            for (int i = this.PacketsListBox.SelectedIndex + 1; i < this.Packets.Count; i++)
             {
-                if (this.pp.Packets[i].Hex.IndexOf(hex, 4, StringComparison.OrdinalIgnoreCase) != -1)
+                if (this.Packets[i].Data.ToHex().IndexOf(hex, 0, StringComparison.OrdinalIgnoreCase) != -1)
                 {
-                    this.PacketsList.SelectedIndex = i;
-                    this.PacketsList.ScrollIntoView(PacketsList.SelectedItem);
+                    this.PacketsListBox.SelectedIndex = i;
+                    this.PacketsListBox.ScrollIntoView(this.PacketsListBox.SelectedItem);
                     return;
                 }
             }
@@ -247,30 +228,30 @@ namespace PacketViewer
             if (MessageBox.Show("Find from start?", "Not found", MessageBoxButton.YesNo) == MessageBoxResult.No)
                 return;
 
-            for (int i = 0; i < this.PacketsList.SelectedIndex; i++)
+            for (int i = 0; i < this.PacketsListBox.SelectedIndex; i++)
             {
-                if (this.pp.Packets[i].Hex.IndexOf(hex, 4, StringComparison.OrdinalIgnoreCase) != -1)
+                if (this.Packets[i].Data.ToHex().IndexOf(hex, 0, StringComparison.OrdinalIgnoreCase) != -1)
                 {
-                    this.PacketsList.SelectedIndex = i;
-                    this.PacketsList.ScrollIntoView(PacketsList.SelectedItem);
+                    this.PacketsListBox.SelectedIndex = i;
+                    this.PacketsListBox.ScrollIntoView(this.PacketsListBox.SelectedItem);
                     return;
                 }
             }
         }
 
-        private void FindByOpCode(object sender, RoutedEventArgs e)
+        private void SearchOpcodeButton_Click(object sender, RoutedEventArgs e)
         {
-            if (this.pp.Packets == null)
+            if (this.Packets == null || this.Packets.Count == 0)
                 return;
 
-            string hex = OpCodeBox.Text.Replace(" ", "");
+            string hex = this.FindOpcodeBox.Text.Replace(" ", "");
 
-            for (int i = this.PacketsList.SelectedIndex + 1; i < this.pp.Packets.Count; i++)
+            for (int i = this.PacketsListBox.SelectedIndex + 1; i < this.Packets.Count; i++)
             {
-                if (this.pp.Packets[i].Hex.IndexOf(hex, 0, StringComparison.OrdinalIgnoreCase) == 0)
+                if (String.Compare(this.Packets[i].GetOpcode(), hex, true) == 0)
                 {
-                    this.PacketsList.SelectedIndex = i;
-                    this.PacketsList.ScrollIntoView(PacketsList.SelectedItem);
+                    this.PacketsListBox.SelectedIndex = i;
+                    this.PacketsListBox.ScrollIntoView(this.PacketsListBox.SelectedItem);
                     return;
                 }
             }
@@ -278,62 +259,27 @@ namespace PacketViewer
             if (MessageBox.Show("Find from start?", "Not found", MessageBoxButton.YesNo) == MessageBoxResult.No)
                 return;
 
-            for (int i = 0; i < PacketsList.SelectedIndex; i++)
+            for (int i = 0; i < this.PacketsListBox.SelectedIndex; i++)
             {
-                if (this.pp.Packets[i].Hex.IndexOf(hex, 0, StringComparison.OrdinalIgnoreCase) == 0)
+                var op = this.Packets[i].GetOpcode();
+                if (String.Compare(op, hex, true) == 0)
                 {
-                    this.PacketsList.SelectedIndex = i;
-                    this.PacketsList.ScrollIntoView(PacketsList.SelectedItem);
+                    this.PacketsListBox.SelectedIndex = i;
+                    this.PacketsListBox.ScrollIntoView(this.PacketsListBox.SelectedItem);
                     return;
                 }
             }
-        }
-
-        private void CaptureMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            if ((string)this.CaptureMenuItem.Header == "Start Capture")
-            {
-                if (this.BoxNic.SelectedValue == null)
-                    return;
-                if (this.cap.IsRunning)
-                    this.cap.StopCapture();
-
-                this.pp.Init();
-                ClearCaptureMenuItem_Click(null, null);             
-
-                string nic_des = (string)this.BoxNic.SelectedValue;
-                string senderIp = ((string)this.BoxServers.Text).Split(';')[0];
-
-                this.cap.StartCapture(nic_des, senderIp);
-                this.BoxNic.IsEnabled = false;
-                this.BoxServers.IsEnabled = false;
-                this.CaptureMenuItem.Header = (object)"Stop Capture";
-            }
-            else
-            {
-                this.cap.StopCapture();
-                this.BoxNic.IsEnabled = true;
-                this.BoxServers.IsEnabled = true;
-                this.CaptureMenuItem.Header = (object)"Start Capture";
-            }
-        }
-
-        private void ClearCaptureMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            if (this.cap.IsRunning)
-                this.pp.Packets.Clear();
-            this.PacketsList.Items.Clear();
-
-            this.OpCodeBox.Text = "Find OpCode";
-            this.HexBox.Text = "Find Hex";
-            this.SetHex("");
-            this.SetText("");
         }
 
         private void AboutThis_Click(object sender, RoutedEventArgs e)
         {
             var aboutThisForm = new AboutBox();
             aboutThisForm.ShowDialog();
+        }
+
+        private void ClearCapture_Click(object sender, RoutedEventArgs e)
+        {
+            this.ClearGUI();
         }
     }
 }
