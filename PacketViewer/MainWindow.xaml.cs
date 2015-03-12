@@ -103,7 +103,7 @@ namespace PacketViewer
                 }
 
                 // Set Event
-                this.Packets.CollectionChanged += new NotifyCollectionChangedEventHandler(OnPacket_Added);
+                this.Packets.CollectionChanged += new NotifyCollectionChangedEventHandler(Packet_Notifier);
 
                 // Start Capture on Device
                 this.Capture.Start();
@@ -117,6 +117,7 @@ namespace PacketViewer
 
                 // Stop Capture on Device
                 this.Capture.Stop();
+                this.Packets.CollectionChanged -= new NotifyCollectionChangedEventHandler(Packet_Notifier);
             }
             else throw new Exception("Dirty Thing happened"); // Avoid dirty thing.
         }
@@ -131,9 +132,11 @@ namespace PacketViewer
             }
         }
 
-        private void OnPacket_Added(object sender, NotifyCollectionChangedEventArgs e)
+        private void Packet_Notifier(object sender, NotifyCollectionChangedEventArgs e)
         {
-            
+            if (e.Action.ToString() != "Add")
+                return;
+
             this.Dispatcher.BeginInvoke(new Action(delegate
                 {
                     Packet packet = this.Packets[e.NewStartingIndex];
