@@ -38,7 +38,7 @@ namespace Network.PacketHandler
         {
             ByteArraySegment raw = new ByteArraySegment(eCap.Packet.Data);
             EthernetPacket ethernetPacket = new EthernetPacket(raw);
-            if (ethernetPacket.Type == EthernetPacketType.IpV4 || ethernetPacket.Type == EthernetPacketType.IpV6)
+            if (ethernetPacket.Type == EthernetPacketType.IpV4)
             {
                 IpPacket ipPacket = (IpPacket)ethernetPacket.PayloadPacket;
                 if (ipPacket.Protocol.ToString() == "TCP")

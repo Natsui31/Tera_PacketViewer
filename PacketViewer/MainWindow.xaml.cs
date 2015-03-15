@@ -49,12 +49,13 @@ namespace PacketViewer
             if (this.Capture != null)
                 if (this.Capture.IsRunning)
                     this.Capture.Stop();
-            this.Capture = null;
         }
 
         private void ClearGUI()
         {
             // Clear GUI
+            this.Dispatcher.BeginInvoke(new Action(delegate
+            {
                 if (this.Capture != null)
                     this.Packets.Clear();
                 this.PacketsListBox.Items.Clear();
@@ -62,6 +63,7 @@ namespace PacketViewer
                 this.FindOpcodeBox.Text = "Find Opcode";
                 this.HexViewTextBox.Document.Blocks.Clear();
                 this.DataViewTextBox.Document.Blocks.Clear();
+            }), System.Windows.Threading.DispatcherPriority.Send);     
         }
 
         private void ExitMenuItem_OnClick(object sender, RoutedEventArgs e)
@@ -124,9 +126,13 @@ namespace PacketViewer
 
         private void NewServerAddress_OnList(object sender, RoutedEventArgs e)
         {
-            string value = "127.0.0.1 or 127.0.0.1:11101";
+            string value = "192.168.10.10 or 192.168.10.10:11101";
             if (InputBox.Show("New Server Address", "Enter New Server Address:", ref value) == System.Windows.Forms.DialogResult.OK)
             {
+                value.Trim();
+                if (value.Contains("127.0.0.1"))
+                    if(MessageBox.Show("ERROR ! You can't capture loopback device...", "ERROR ! ", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                        return;
                 this.ServerListBox.Items.Add(value);
                 this.ServerListBox.SelectedIndex = (this.ServerListBox.Items.Count - 1);
             }
